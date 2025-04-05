@@ -133,12 +133,14 @@ celerybeat.pid
 env/
 venv/
 ENV/
+ML/
 env.bak/
 venv.bak/
-
+catboost_info/
 # Spyder project settings
 .spyderproject
 .spyproject
+dataset.csv
 
 # Rope project settings
 .ropeproject
