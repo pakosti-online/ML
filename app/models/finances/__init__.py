@@ -130,3 +130,35 @@ def recomendate(data: list):
     recommendations = analyze_transactions(data)
     recommendations_json = [{"id": i + 1, "recommendation": r} for i, r in enumerate(recommendations)]
     return recommendations_json
+
+def calculate_current_state(data: list):
+    income = 0  # Доходы
+    expenses = 0  # Расходы
+    balance = 0  # Начальный баланс
+
+    # Проходим по данным и суммируем доходы и расходы
+    for entry in data:
+        if entry['category'] == 'Зарплата':
+            income += entry['delta']  # Добавляем доход
+        else:
+            expenses += abs(entry['delta'])  # Добавляем расходы для всех категорий, кроме "Зарплата"
+
+    # Возвращаем сумму доходов, расходов и текущий баланс
+    balance = income - expenses
+    return balance, income, expenses
+
+# Функция для прогнозирования состояния на N дней
+def predict_balance_on_days(data: list, N: int):
+    current_balance, total_income, total_expenses = calculate_current_state(data)
+    
+    # Прогноз на N дней: предполагаем, что доходы и расходы останутся постоянными
+    daily_income = total_income / len([entry for entry in data if entry['category'] == 'Зарплата'])
+    daily_expenses = total_expenses / len([entry for entry in data if entry['category'] != 'Зарплата'])
+    
+    projected_balance = current_balance
+    
+    # Прогнозируем изменения баланса на N дней
+    for _ in range(N):
+        projected_balance += daily_income - daily_expenses
+    
+    return projected_balance
