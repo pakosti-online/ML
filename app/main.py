@@ -4,22 +4,7 @@ import json
 import urllib.parse
 
 class RequestHandler(SimpleHTTPRequestHandler):
-    def do_GET(self):
-        # /predict/categorizer/advanced)
-        if self.path.startswith("/predict/categorizer"):
-            word = self.path.split("/")[-1]
-            self.handle_predict(categorizer, word)
-        else:
-            # /predict/categorizer?word=advanced)
-            parsed_url = urllib.parse.urlparse(self.path)
-            params = urllib.parse.parse_qs(parsed_url.query)
-            word = params.get("word", ["default"])[0]
-
-            if self.path.startswith("/predict/categorizer"):
-                self.handle_predict(categorizer, word)
-            else:
-                self.send_error(404, "Not Found")
-
+    
     def handle_predict(self, model, word):
         try:
             result = model.predict(product_name=word)
@@ -37,6 +22,22 @@ class RequestHandler(SimpleHTTPRequestHandler):
         # /predict/recomendate
         if self.path.startswith("/predict/recomendate"):
             self.handle_recomendate()
+        elif self.path.startswith("/predict/categorizer"):
+            # Читаем данные из тела запроса
+            content_length = int(self.headers['Content-Length'])  # Получаем длину тела запроса
+            post_data = self.rfile.read(content_length)  # Читаем данные из тела запроса
+
+            # Преобразуем данные в формат JSON (предполагаем, что данные передаются в формате JSON)
+            try:
+                data = json.loads(post_data)
+                word = data.get("word", "default")  # Извлекаем значение параметра "word" или "default"
+                print(f"Extracted word: {word}")  # Выводим слово в консоль
+
+                # Обрабатываем предсказание с этим словом
+                self.handle_predict(categorizer, word)
+
+            except json.JSONDecodeError:
+                self.send_error(400, "Invalid JSON data")
         else:
             self.send_error(404, "Not Found")
 
