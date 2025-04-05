@@ -2,6 +2,4 @@ catboost
 scikit-learn
 pandas
 numpy
-transformers 
-torch
 optuna
